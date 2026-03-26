@@ -34,3 +34,123 @@ def test_create_choice():
     assert len(question.choices) == 1
     assert choice.text == 'a'
     assert not choice.is_correct
+
+#MEUS NOVOS TESTES COMMIT 2 DA AULA PRÁTICA 1
+def test_create_question_with_invalid_points():
+    with pytest.raises(Exception):
+        Question(title="q1", points=0)
+    with pytest.raises(Exception):
+        Question(title="q2", points=300)
+
+def test_create_choice_with_invalid_text():
+    question = Question(title="q1")
+    
+    with pytest.raises(Exception):
+        question.add_choice("", True)
+    with pytest.raises(Exception):
+        question.add_choice(('a'*200), False)
+
+def test_create_multiple_choice_question():
+    question = Question(title="q1")
+
+    question.add_choice("a", False)
+    question.add_choice("b", True)
+    
+    choice_a = question.choices[0]
+    choice_b = question.choices[1]
+    assert len(question.choices) == 2
+    assert choice_a.text == 'a'
+    assert not choice_a.is_correct
+    assert choice_b.text == 'b'
+    assert choice_b.is_correct == True
+
+def test_set_correct_choices():
+    question = Question(title="q1")
+
+    question.add_choice("a", False)
+    question.add_choice("b", False)
+    question.add_choice("c", False)
+    choice_a = question.choices[0]
+    choice_b = question.choices[1]
+    choice_c = question.choices[2]
+    choice_c_id = question.choices[2].id
+    correct_choice_ids = [choice_c_id]
+    question.set_correct_choices(correct_choice_ids)
+
+    assert not choice_a.is_correct
+    assert not choice_b.is_correct
+    assert choice_c.is_correct == True
+
+def test_correct_selected_choices():
+    question = Question(title="q1")
+
+    question.add_choice("a")
+    question.add_choice("b")
+    question.add_choice("c")
+    choice_c = question.choices[2]
+    correct_choice_ids = [choice_c.id]
+    question.set_correct_choices(correct_choice_ids)
+    selected_choice_ids = [choice_c.id]
+    correct_selected_choices = question.correct_selected_choices(selected_choice_ids)
+
+    assert len(correct_selected_choices) == 1
+    assert correct_selected_choices[0] == choice_c.id
+
+def test_reset_question_choices():
+    question = Question(title="q1")
+
+    question.add_choice("a")
+    question.add_choice("b")
+    question.add_choice("c")
+    question.remove_all_choices()
+
+    assert len(question.choices) == 0
+
+def test_remove_choice():
+    question = Question(title="q1")
+
+    question.add_choice("a")
+    question.add_choice("b")
+    choice_a_id = question.choices[0].id
+    question.remove_choice_by_id(choice_a_id)
+
+    assert len(question.choices) == 1
+    assert question.choices[0].id != choice_a_id
+    assert question.choices[0].text == "b"
+
+def test_remove_invalid_choice():
+    question = Question(title="q1")
+
+    question.add_choice("a")
+    question.add_choice("b")
+    
+    with pytest.raises(Exception):
+        invalid_id = 350
+        question.remove_choice_by_id(invalid_id)
+
+def test_set_invalid_correct_choices():
+    question = Question(title="q1")
+
+    question.add_choice("a")
+    question.add_choice("b")
+    question.add_choice("c")
+
+    invalid_id = 350
+    invalid_correct_choice_ids = [invalid_id]
+    with pytest.raises(Exception):
+        question.set_correct_choices(invalid_correct_choice_ids)
+
+def test_correct_invalid_selected_choices():
+    question = Question(title="q1")
+
+    question.add_choice("a")
+    question.add_choice("b")
+    question.add_choice("c")
+    choice_c = question.choices[2]
+    correct_choice_ids = [choice_c.id]
+    question.set_correct_choices(correct_choice_ids)
+
+    choice_a_id = question.choices[0].id
+    invalid_selected_choice_ids = [choice_a_id, choice_c.id]
+    with pytest.raises(Exception):
+        correct_selected_choices = question.correct_selected_choices(invalid_selected_choice_ids)
