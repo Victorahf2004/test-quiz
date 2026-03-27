@@ -154,3 +154,31 @@ def test_correct_invalid_selected_choices():
     invalid_selected_choice_ids = [choice_a_id, choice_c.id]
     with pytest.raises(Exception):
         correct_selected_choices = question.correct_selected_choices(invalid_selected_choice_ids)
+
+#MEUS NOVOS TESTES, COMMIT 3 DA AULA PRÁTICA 1
+
+@pytest.fixture
+def multiple_choice_question():
+    multiple_choice_question = Question(title="q1", max_selections=2)
+    multiple_choice_question.add_choice("a")
+    multiple_choice_question.add_choice("b")
+    multiple_choice_question.add_choice("c")
+    choice_c = multiple_choice_question.choices[2]
+    multiple_choice_question.set_correct_choices([choice_c.id])
+    return multiple_choice_question
+
+def test_correct_selected_choices_when_all_wrong(multiple_choice_question):
+    choice_a = multiple_choice_question.choices[0]
+
+    empty_correct_selected_choices = multiple_choice_question.correct_selected_choices([choice_a.id])
+
+    assert len(empty_correct_selected_choices) == 0
+
+def test_correct_selected_choices_with_mixed_selection(multiple_choice_question):
+    choice_a = multiple_choice_question.choices[0]
+    choice_c = multiple_choice_question.choices[2]
+
+    correct_selected = multiple_choice_question.correct_selected_choices([choice_a.id, choice_c.id])
+
+    assert len(correct_selected) == 1
+    assert correct_selected[0] == choice_c.id    
